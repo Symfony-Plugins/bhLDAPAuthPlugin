@@ -1,0 +1,245 @@
+<!-- -*- markdown -*- -->
+
+# bhLDAPAuthPlugin #
+
+`bhLDAPAuthPlugin` allows you to use users and groups from an LDAP directory (Only Microsoft Active Directory&reg; for now but you're welcome to add others) for your symfony app's authentication and authorization.
+
+## Revision ##
+
+$Id$
+
+## What it does ##
+
+`bhLDAPAuthPlugin` does:
+
+   * give your app a web login form similar to sfGuard's
+   * let you allow parts of your app to users based on their membership in AD groups
+   * work with Apache on Windows ([XAMPP](http://www.apachefriends.org) rocks; you will need the Devel package) or Linux (probably also other Unix family OSes including Mac OS X).
+
+It does *NOT*: 
+
+   * provide single sign on/seamless authentication/NTLM/GSSAPI.  For that, you can try [some of these alternatives](http://adldap.sourceforge.net/wiki/doku.php?id=seamless_authentication).  I would start by trying (again) to get symfony to run on IIS (Windows).
+   * currently work with LDAP servers other than Microsoft Active Directory&reg;
+   * necessarily keep your app from transmitting AD passwords over the network in plain text (use HTTPS for the login!)
+   * suck as much as having Yet Another user/group database to maintain
+
+## Requirements ##
+
+  * [`sfGuardPlugin`](http://www.symfony-project.com/plugins/sfGuardPlugin).  Why reinvent the wheel?
+  * For now, symfony 1.0.
+  * Your PHP must have OpenLDAP support enabled
+  * Microsoft Active Directory&reg;
+  * `sfSslRequirementPlugin` is a good idea but not strictly required (see "enable SSL" below).
+
+## Installation ##
+
+* make sure your PHP includes OpenSSL and OpenLDAP support (see `phpinfo()`) (note, for XAMPP, [this blog post](http://www.rawiriblundell.com/?p=224) was instrumental.)
+
+* Install the `sfGuardPlugin`
+
+    > symfony plugin-install http://plugins.symfony-project.com/sfGuardPlugin
+
+
+* Install the `bhLDAPAuthPlugin`
+
+    > symfony plugin-install http://plugins.symfony-project.com/bhLDAPAuthPlugin
+
+
+* edit the domain values in your project's `config/LDAPAuth.yml` (you can start by copying `plugins/bhLDAPAuthPlugin/config/LDAPAuth.yml` to `config/LDAPAuth.yml`, as an example)
+
+<pre>
+    # base for all users and groups
+    account_suffix      :  "@mydomain"     
+    base_dn             :  "DC=mydomain,DC=mycompany,DC=com"
+    
+    # An array of domain controllers. Specify multiple controllers if you 
+    # would like the class to balance the LDAP queries amongst multiple servers
+    domain_controllers:
+      - 10.41.16.2
+      - 10.41.16.3
+</pre>
+
+* Rebuild your model.  
+
+This adds the Propel object models for tables that `sfGuardPlugin` needs to your database, even though we won't be using most of them.
+
+    > symfony propel-build-model
+    > symfony propel-build-sql
+
+* Update you database tables by starting from scratch (it will delete all
+the existing tables, then re-create them):
+  
+    > symfony propel-insert-sql
+
+*or*, you can just create the new tables by using the generated SQL
+statements in `data/sql/plugins.sfGuardAuth.lib.model.schema.sql`
+
+With MySQL, that would be like this:
+
+    > mysql -uroot -ppassword database < data/sql/plugins.sfGuardPlugin.lib.model.schema.sql
+
+* (Don't load the default sfGuardPlugin fixtures)
+
+* Clear you cache
+
+    > symfony cc
+
+* Optionally enable the "Remember Me" filter in `apps/frontend/config/filters.yml` (great for Intranet apps)
+
+    security:
+      class: sfGuardBasicSecurityFilter
+
+
+
+### Secure your application ###
+
+To require users to log in to a symfony application (`frontend` in these examples):
+
+  * Enable the module `sfGuardAuth` in `apps/frontend/config/settings.yml`
+
+    all:
+      .settings:
+        enabled_modules: [..., sfGuardAuth, bhLDAPAuth]
+
+  * Change the default login and secure modules under `.actions` in `settings.yml`
+
+    login_module:           bhLDAPAuth
+    login_action:           signin
+
+    secure_module:          sfGuardAuth
+    secure_action:          secure
+
+  * Change the parent class to bhLDAPAuthSecurityUser in `apps/frontend/lib/myUser.class.php`
+
+    [php]
+    class myUser extends bhLDAPAuthSecurityUser
+    {
+    }
+
+
+  * Secure some modules or your entire application in `security.yml`
+
+    default:
+      is_secure: on
+
+  * Tell `sfGuard` to use the password checker in `bhLDAPAuth`
+  
+    all:
+      sf_guard_plugin:
+	check_password_callable:   \[bhLDAP, checkPassword\]
+
+At this point your application is restricted to users who can supply
+valid AD credentials.
+
+#### enable SSL protection of login form
+
+You don't want your AD credentials flying around the network in clear text, right?  
+
+1. install the [sfSslRequirementPlugin](http://trac.symfony-project.org/wiki/sfSslRequirementPlugin) into your project's plugin dir.
+
+    > symfony plugin-install http://plugins.symfony-project.com/sfSslRequirementPlugin
+
+2. complete the installation (editing `filters.yml` and clearing
+cache) according to the plugin's README
+
+3. the bhLDAPAuthPlugin `security.yml` file already turns SSL on for
+the signin and login action.
+
+4. You're done. Now, if you try to access a secure page, you will be
+redirected to the login page.
+
+
+
+### Granting different permissions to different LDAP groups ###
+
+Imagine your application is a blog, with articles and comments, and
+you want the following access scheme:
+
+  * users in the `HumanResources` Active Directory group can post and edit articles
+  * users in the `IntranetUsers` group can add comments or update their own comments
+
+Now that you have bhLDAPAuth configured, it's easy!
+
+1. Edit the `groupMappings` section of `config/LDAPAuth.yml`:
+
+<pre>
+    groupMappings:
+      #  These settings map symfony credentials to AD groups.
+      #  The credentials are applied to actions based on your app's config/security.yml file
+      #  See chapter 6 (Inside the Controller Layer) of the book for more about credentials
+      readers :
+        - IntranetUsers
+        - HumanResources
+      editors  :
+        - HumanResources
+</pre>
+
+2. Edit the `security.yml` file in each of your modules' `config`
+directory to limit the actions to users with the appropriate
+credentials.
+
+For articles, edit
+`apps/myapp/modules/article/config/security.yml`, adding a section
+for each of your `article` module's actions:
+
+    view:
+      credentials: readers
+
+    list:
+      credentials: readers
+
+    create:
+      credentials: editors
+
+    edit:
+      credentials: editors
+
+    update:
+      credentials: editors
+
+For comments, edit `apps/myapp/modules/comment/config/security.yml`:
+
+    view:
+      credentials: readers
+
+    list:
+      credentials: readers
+
+    create:
+      credentials: readers
+
+    edit:
+      credentials: readers
+
+    update:
+      credentials: readers
+
+
+## Thanks ##
+
+This is all on the shoulders of giants.  Besides
+[symfony](http://symfony-project.com) and
+[sfGuardPlugin](http://www.symfony-project.com/plugins/sfGuardPlugin),
+it includes code from 
+[the `adLDAP` PHP library](http://adldap.sourceforge.net/).
+
+## Authors ##
+
+* Nathan Vonnahme (nathan dot vonnahme at banner health dot com)
+* You?
+
+## TODO ##
+
+* write tests
+* make it work with symfony 1.1
+* make it work with non-AD LDAP servers?  I don't have any to play with.
+
+## Changelog ##
+
+### 0.2, 0.3, 0.4, 0.5 ###
+
+* nathan: doc tweaks (grrr)
+
+### 0.1 ###
+
+* nathan: initial release
