@@ -3,6 +3,8 @@
 
 require_once(sfConfig::get('sf_plugins_dir').'/sfGuardPlugin/modules/sfGuardAuth/lib/BasesfGuardAuthActions.class.php');
 
+
+
 /**
  *
  * @package    bhLDAPAuthPlugin
@@ -20,6 +22,7 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
     $user = $this->getUser();
     if ($user->isAuthenticated())
     {
+      bhLDAP::debug("########  logged in!  redirectifying to homepage");
       return $this->redirect('@homepage');
     }
 
@@ -52,12 +55,6 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
       }
     
     }
-/*     elseif ($user->isAuthenticated()) */
-/*     { */
-/*       bhLDAP::debug("########  logged in!  redirectifying to homepage"); */
-
-/*       $this->redirect('@homepage'); */
-/*     } */
     else
     {
       bhLDAP::debug("########  not a POST!  redirecting to signin form");

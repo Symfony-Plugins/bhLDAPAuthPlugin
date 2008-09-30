@@ -22,15 +22,25 @@ class bhLDAPAuthRouting extends sfGuardRouting
   static public function listenToRoutingLoadConfigurationEvent(sfEvent $event)
   {
     $r = $event->getSubject();
-    parent::listenToRoutingLoadConfigurationEvent($event);
 
     $r->prependRoute('bh_ldap_signin', '/login', array('module' => 'bhLDAPAuth', 'action' => 'signin'));
+    $r->prependRoute('sf_guard_signin', '/login', array('module' => 'bhLDAPAuth', 'action' => 'signin'));
+
+    parent::listenToRoutingLoadConfigurationEvent($event);
+
+
+
+
+#    $r->prependRoute('sf_guard_signin', '/signin', array('module' => 'bhLDAPAuth', 'action' => 'signin'));
 
 /*     // prepend our routes */
 
-/*     $r->prependRoute('sf_guard_signin', '/login', array('module' => 'bhLDAPAuthAuth', 'action' => 'signin')); */
-/*     $r->prependRoute('sf_guard_signout', '/logout', array('module' => 'bhLDAPAuthAuth', 'action' => 'signout')); */
-/*     $r->prependRoute('sf_guard_password', '/request_password', array('module' => 'bhLDAPAuthAuth', 'action' => 'password')); */
+/*     $r->prependRoute('sf_guard_signin', '/login', array('module' => 'bhLDAPAuth', 'action' => 'signin')); */
+
+/*     $r->prependRoute('sf_guard_signout', '/logout', array('module' => 'sfGuardAuth', 'action' => 'signout')); */
+
+
+/*     $r->prependRoute('sf_guard_password', '/request_password', array('module' => 'sfGuardAuth', 'action' => 'password')); */
 
   }
 }

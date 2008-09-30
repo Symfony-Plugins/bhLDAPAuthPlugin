@@ -26,10 +26,9 @@ It does *NOT*:
 ## Requirements ##
 
   * [`sfGuardPlugin`](http://www.symfony-project.com/plugins/sfGuardPlugin).  Why reinvent the wheel?
-  * For now, symfony 1.0.
   * Your PHP must have OpenLDAP support enabled
   * Microsoft Active Directory&reg;
-  * `sfSslRequirementPlugin` is a good idea but not strictly required (see "enable SSL" below).
+  * [`sfSslRequirementPlugin`](http://www.symfony-project.org/plugins/sfSslRequirementPlugin)  is a good idea but not strictly required (see "enable SSL" below).
 
 ## Installation ##
 
@@ -37,12 +36,11 @@ It does *NOT*:
 
 * Install the `sfGuardPlugin`
 
-    > symfony plugin-install http://plugins.symfony-project.com/sfGuardPlugin
-
+    $ symfony plugin:install sfGuardPlugin
 
 * Install the `bhLDAPAuthPlugin`
 
-    > symfony plugin-install http://plugins.symfony-project.com/bhLDAPAuthPlugin
+    $ symfony plugin:install bhLDAPAuthPlugin
 
 
 * edit the domain values in your project's `config/LDAPAuth.yml` (you can start by copying `plugins/bhLDAPAuthPlugin/config/LDAPAuth.yml` to `config/LDAPAuth.yml`, as an example)
@@ -63,20 +61,20 @@ It does *NOT*:
 
 This adds the Propel object models for tables that `sfGuardPlugin` needs to your database, even though we won't be using most of them.
 
-    > symfony propel-build-model
-    > symfony propel-build-sql
+    $ symfony propel:build-model
+    $ symfony propel:build-sql
 
 * Update you database tables by starting from scratch (it will delete all
 the existing tables, then re-create them):
   
-    > symfony propel-insert-sql
+    $ symfony propel:insert-sql
 
 *or*, you can just create the new tables by using the generated SQL
 statements in `data/sql/plugins.sfGuardAuth.lib.model.schema.sql`
 
 With MySQL, that would be like this:
 
-    > mysql -uroot -ppassword database < data/sql/plugins.sfGuardPlugin.lib.model.schema.sql
+    $ mysql -uroot -ppassword database < data/sql/plugins.sfGuardPlugin.lib.model.schema.sql
 
 * (Don't load the default sfGuardPlugin fixtures)
 
@@ -122,7 +120,7 @@ To require users to log in to a symfony application (`frontend` in these example
     default:
       is_secure: on
 
-  * Tell `sfGuard` to use the password checker in `bhLDAPAuth`
+  * Tell `sfGuard` to use the password checker from `bhLDAPAuth` in `apps/frontend/config/app.yml`
   
     all:
       sf_guard_plugin:
@@ -131,7 +129,7 @@ To require users to log in to a symfony application (`frontend` in these example
 At this point your application is restricted to users who can supply
 valid AD credentials.
 
-#### enable SSL protection of login form
+### enable SSL protection of login form
 
 You don't want your AD credentials flying around the network in clear text, right?  
 
@@ -230,9 +228,10 @@ it includes code from
 
 ## TODO ##
 
-* write tests
+* write tests?
 * make it work with symfony 1.1
 * make it work with non-AD LDAP servers?  I don't have any to play with.
+* cache password hash in sfGuard tables and use it if AD isn't available (suggested by Dominik R)
 
 ## Changelog ##
 
