@@ -3,23 +3,17 @@
 /* require_once 'lib/bhLDAP.php'; */
 /* require_once 'lib/adLDAP.php'; */
 
-class bhLDAPUserValidator extends sfGuardUserValidator
+class bhLDAPUserValidator extends sfGuardValidatorUser
 {
-  public function execute(&$value, &$error)
+
+
+  protected function doClean($values)
   {
-    bhLDAP::debug("########  hello bhLDAPUserValidator::execute()!");
+    $username = isset($values[$this->getOption('username_field')]) ? $values[$this->getOption('username_field')] : '';
+    $password = isset($values[$this->getOption('password_field')]) ? $values[$this->getOption('password_field')] : '';
+    $remember = isset($values[$this->getOption('rememeber_checkbox')]) ? $values[$this->getOption('rememeber_checkbox')] : '';
 
-
-    $password_field = $this->getParameterHolder()->get('password_field');
-    $password = $this->getContext()->getRequest()->getParameter($password_field);
-
-    $remember = false;
-    $remember_field = $this->getParameterHolder()->get('remember_field');
-    $remember = $this->getContext()->getRequest()->getParameter($remember_field);
-
-    $username = $value;
-
-
+    bhLDAP::debug("########  hello bhLDAPUserValidator::doClean()!");
     $user = sfGuardUserPeer::retrieveByUsername($username);
 
     if (! $user) { // pretend the user exists, then check AD password
@@ -39,21 +33,21 @@ class bhLDAPUserValidator extends sfGuardUserValidator
 	  $user->save();
 	  $user = sfGuardUserPeer::retrieveByUsername($username);
 	}
-
-/* 	$this->getContext()->getUser()->setCulture('en_US'); */
-        $this->getContext()->getUser()->signIn($user, $remember);
-
-        return true;
+        return array_merge($values, array('user' => $user));
       }
       else {
 	$user->delete();
       }
     }
 
-    $error = $this->getParameterHolder()->get('username_error');
+    if ($this->getOption('throw_global_error'))
+    {
+      throw new sfValidatorError($this, 'invalid');
+    }
 
-    return false;
+    throw new sfValidatorErrorSchema($this, array($this->getOption('username_field') => new sfValidatorError($this, 'invalid')));
   }
-}
 
+
+}
 //sfeof

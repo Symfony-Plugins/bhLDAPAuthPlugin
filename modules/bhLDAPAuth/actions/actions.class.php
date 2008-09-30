@@ -44,7 +44,7 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
       if ($this->form->isValid())
       {
         $values = $this->form->getValues();
-        $this->getUser()->signin($values['user'], array_key_exists('remember', $values) ? $values['remember'] : false);
+        $this->getUser()->signIn($values['user'], array_key_exists('remember', $values) ? $values['remember'] : false);
 
         // always redirect to a URL set in app.yml
         // or to the referer
