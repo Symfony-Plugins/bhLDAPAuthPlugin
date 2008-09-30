@@ -13,36 +13,55 @@ require_once(sfConfig::get('sf_plugins_dir').'/sfGuardPlugin/modules/sfGuardAuth
 class bhLDAPAuthActions extends BasesfGuardAuthActions
 {
 
-  public function executeSignin()
+  public function executeSignin($request)
   {
     bhLDAP::debug("########  hello my actions!");
 
-
     $user = $this->getUser();
+    if ($user->isAuthenticated())
+    {
+      return $this->redirect('@homepage');
+    }
 
 /*     bhLDAP::debugDump($user, 'the user'); */
 
 
-    if ($this->getRequest()->getMethod() == sfRequest::POST)
+    $class = sfConfig::get('app_sf_guard_plugin_signin_form', 'bhLDAPAuthFormSignin');
+    $this->form = new $class();
+
+
+    if ($request->isMethod('post'))
     {
-      bhLDAP::debug("########  a log in attemptf!  signing in (if validation passed) and redirectifying to homepage or wherever");
+      bhLDAP::debug("########  a login attempt!  signing in (if validation passed) and redirectifying to homepage or wherever");
 
-      $referer = $user->getAttribute('referer', $this->getRequest()->getReferer());
-      $user->getAttributeHolder()->remove('referer');
 
-      $signin_url = sfConfig::get('app_sf_guard_plugin_success_signin_url', $referer);
 
-      $this->redirect('' != $signin_url ? $signin_url : '@homepage');
+
+      $this->form->bind($request->getParameter('signin'));
+      if ($this->form->isValid())
+      {
+        $values = $this->form->getValues();
+        $this->getUser()->signin($values['user'], array_key_exists('remember', $values) ? $values['remember'] : false);
+
+        // always redirect to a URL set in app.yml
+        // or to the referer
+        // or to the homepage
+        $signinUrl = sfConfig::get('app_sf_guard_plugin_success_signin_url', $user->getReferer('@homepage'));
+
+        return $this->redirect($signinUrl);
+      }
+    
     }
-    elseif ($user->isAuthenticated())
-    {
-      bhLDAP::debug("########  logged in!  redirectifying to homepage");
+/*     elseif ($user->isAuthenticated()) */
+/*     { */
+/*       bhLDAP::debug("########  logged in!  redirectifying to homepage"); */
 
-      $this->redirect('@homepage');
-    }
+/*       $this->redirect('@homepage'); */
+/*     } */
     else
     {
-      bhLDAP::debug("########  not a POST!  redirectifying to signin form");
+      bhLDAP::debug("########  not a POST!  redirecting to signin form");
+
       if ($this->getRequest()->isXmlHttpRequest())
       {
         $this->getResponse()->setHeaderOnly(true);
@@ -51,10 +70,10 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
         return sfView::NONE;
       }
 
-      if (!$user->hasAttribute('referer'))
-      {
-        $user->setAttribute('referer', $this->getRequest()->getReferer());
-      }
+
+      // if we have been forwarded, then the referer is the current URL
+      // if not, this is the referer of the current request
+      $user->setReferer($this->getContext()->getActionStack()->getSize() > 1 ? $request->getUri() : $request->getReferer());
 
       if ($this->getModuleName() != ($module = sfConfig::get('sf_login_module')))
       {
