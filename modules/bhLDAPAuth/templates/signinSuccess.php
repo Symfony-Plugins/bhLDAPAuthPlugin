@@ -12,7 +12,9 @@
 	<table>
 	  <tr>
 	    <th><label for="signin_username">Active Directory username</label></th>
-      <td><?php echo $form['username']->render() ?>
+      <td>
+<?php echo $form['username']->renderError()  ?>
+<?php echo $form['username']->render() ?>
 <?php echo $LDAP_config['adLDAP']['account_suffix'] ;  ?></td>
 	      </tr>
     <?php echo $form['password']->renderRow() ?>
