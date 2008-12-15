@@ -21,7 +21,7 @@ class bhLDAPAuthRouting extends sfGuardRouting
    */
   static public function listenToRoutingLoadConfigurationEvent(sfEvent $event)
   {
-    $r = $event->getSubject();
+    $r = $event->getSubject();   
 
     $r->prependRoute('bh_ldap_signin', '/login', array('module' => 'bhLDAPAuth', 'action' => 'signin'));
     $r->prependRoute('sf_guard_signin', '/login', array('module' => 'bhLDAPAuth', 'action' => 'signin'));

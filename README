@@ -120,11 +120,13 @@ To require users to log in to a symfony application (`frontend` in these example
     default:
       is_secure: on
 
-  * Tell `sfGuard` to use the password checker from `bhLDAPAuth` in `apps/frontend/config/app.yml`
+  * Tell `sfGuard` to use the password checker from `bhLDAPAuth` in `apps/frontend/config/app.yml`, and to NOT prepend its own routes.
   
     all:
       sf_guard_plugin:
 	check_password_callable:   \[bhLDAP, checkPassword\]
+        routes_register: false
+
 
 At this point your application is restricted to users who can supply
 valid AD credentials.
