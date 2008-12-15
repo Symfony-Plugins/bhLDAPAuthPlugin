@@ -17,7 +17,7 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
 
   public function executeSignin($request)
   {
-    bhLDAP::debug("########  hello my actions!");
+    bhLDAP::debug("########  hello bhLDAPAuthActions::executeSignin");
 
     $user = $this->getUser();
     if ($user->isAuthenticated())
@@ -31,6 +31,8 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
 
     $class = sfConfig::get('app_sf_guard_plugin_signin_form', 'bhLDAPAuthFormSignin');
     $this->form = new $class();
+
+    bhLDAP::debug("########  Request Method = " . $request->getMethodName());
 
 
     if ($request->isMethod('post'))
