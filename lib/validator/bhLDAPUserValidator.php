@@ -23,12 +23,16 @@ class bhLDAPUserValidator extends sfGuardValidatorUser
       $user->setPassword('unused');
     }
 
+    bhLDAP::debug("########  checking AD password...");
+
     // user exists?
     if ($user)
     {
       // password is ok?
       if ($user->checkPassword($password))
       {
+	bhLDAP::debug("########  Good password!");
+
 	if ($user->isNew()) {
 	  $user->save();
 	  $user = sfGuardUserPeer::retrieveByUsername($username);
@@ -36,6 +40,7 @@ class bhLDAPUserValidator extends sfGuardValidatorUser
         return array_merge($values, array('user' => $user));
       }
       else {
+	bhLDAP::debug("########  Password FAIL!");
 	$user->delete();
       }
     }
