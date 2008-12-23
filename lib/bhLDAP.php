@@ -55,6 +55,18 @@ class bhLDAP
   }
 
 
+  # this works around a PHP_NOTICE error in adLDAP's user_groups function
+  public static function getUserGroups ($username) {
+    $ldap = self::getLDAP();
+
+    $filter="samaccountname=".$username;
+    $fields=array("memberof");
+    $sr=ldap_search($ldap->_conn,$ldap->_base_dn,$filter,$fields);
+    $entries = ldap_get_entries($ldap->_conn, $sr);
+
+    return $ldap->nice_names($entries[0]['memberof']);
+  }
+
   public static function getUserCredentials($user)
   {
     $credentials = array();
@@ -63,18 +75,15 @@ class bhLDAP
 
     $ldap = self::getLDAP();
     self::debug("looking up user groups for $username");
-/*     try { */
-/*       $g = @$ldap->user_groups($username); */
-/*     } */
-/*     catch (Exception $e) { */
-/*       self::debugDump($e->getMessage(), "Caught exception while querying ldap");  */
-/*     }		      */
-/*     self::debugDump($g, "groups for $username"); */
+
+    // look up credentials using AD groups
+    $memberships = self::getUserGroups($username);
 
     $c = self::getConfig();
     foreach ($c['groupMappings'] as $credential => $ad_groups) {
       foreach ($ad_groups as $group) {
-	if (@$ldap->user_ingroup($username, $group, false)) {
+#	if (@$ldap->user_ingroup($username, $group, false)) {
+	if ( in_array($group, $memberships) ) {
 	  $credentials[] = $credential;
 	  continue 2;
 	}
@@ -82,15 +91,6 @@ class bhLDAP
     }
 
     self::debugDump($credentials, "credentials for $username");
-
-/*     // look up credentials using AD groups */
-/*     if (@$ldap->user_ingroup($username,'akggER_Log_readonly', false)) { */
-/*       $credentials = array('read'); */
-/*     } */
-/*     if (@$ldap->user_ingroup($username,'akggER_Log', false)) { */
-/*       $credentials = array('write', 'read'); */
-/*     } */
-
 
     return $credentials;
   }
