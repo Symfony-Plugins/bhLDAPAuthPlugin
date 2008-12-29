@@ -66,6 +66,12 @@ class bhLDAP
 
     return $ldap->nice_names($entries[0]['memberof']);
   }
+  
+  # all lowercase, for case-insensitive matching
+  public static function getUserGroupsLC ($username) {
+    $g = self::getUserGroups($username);
+    return array_map("strtolower", $g);
+  }
 
   public static function getUserCredentials($user)
   {
@@ -77,13 +83,13 @@ class bhLDAP
     self::debug("looking up user groups for $username");
 
     // look up credentials using AD groups
-    $memberships = self::getUserGroups($username);
+    $memberships = self::getUserGroupsLC($username);
 
     $c = self::getConfig();
     foreach ($c['groupMappings'] as $credential => $ad_groups) {
       foreach ($ad_groups as $group) {
 #	if (@$ldap->user_ingroup($username, $group, false)) {
-	if ( in_array($group, $memberships) ) {
+	if ( in_array(strtolower($group), $memberships) ) {
 	  $credentials[] = $credential;
 	  continue 2;
 	}
