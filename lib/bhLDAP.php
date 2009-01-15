@@ -67,8 +67,13 @@ class bhLDAP
 
     $filter="samaccountname=".$username;
     $fields=array("memberof");
-    $sr=ldap_search($ldap->_conn,$ldap->_base_dn,$filter,$fields);
+
+    $sr=@ldap_search($ldap->_conn,$ldap->_base_dn,$filter,$fields);
+    if (! $sr) return array();
+
     $entries = ldap_get_entries($ldap->_conn, $sr);
+    if (! (array_key_exists(0, $entries) && array_key_exists('memberof', $entries[0]))) 
+      return array();
 
     $groups = $ldap->nice_names($entries[0]['memberof']);
     if ($recursive){
