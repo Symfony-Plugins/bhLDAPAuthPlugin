@@ -56,20 +56,34 @@ class bhLDAP
 
 
   # this works around a PHP_NOTICE error in adLDAP's user_groups function
-  public static function getUserGroups ($username) {
+  public static function getUserGroups ($username, $recursive=NULL) {
     $ldap = self::getLDAP();
+
+    if ( $recursive == NULL ) { 
+      //use the default option if they haven't set it
+      $recursive=$ldap->_recursive_groups; 
+    } 
+
 
     $filter="samaccountname=".$username;
     $fields=array("memberof");
     $sr=ldap_search($ldap->_conn,$ldap->_base_dn,$filter,$fields);
     $entries = ldap_get_entries($ldap->_conn, $sr);
 
-    return $ldap->nice_names($entries[0]['memberof']);
+    $groups = $ldap->nice_names($entries[0]['memberof']);
+    if ($recursive){
+      foreach ($groups as $id => $group_name){
+	$extra_groups=$ldap->recursive_groups($group_name);
+	$groups=array_merge($groups,$extra_groups);
+      }
+    }
+
+    return $groups;
   }
   
   # all lowercase, for case-insensitive matching
-  public static function getUserGroupsLC ($username) {
-    $g = self::getUserGroups($username);
+  public static function getUserGroupsLC ($username, $recursive=NULL) {
+    $g = self::getUserGroups($username, $recursive);
     return array_map("strtolower", $g);
   }
 
