@@ -73,7 +73,7 @@ class bhLDAP
     $groups = $ldap->nice_names($entries[0]['memberof']);
     if ($recursive){
       foreach ($groups as $id => $group_name){
-	$extra_groups=$ldap->recursive_groups($group_name);
+	$extra_groups=@$ldap->recursive_groups($group_name);
 	$groups=array_merge($groups,$extra_groups);
       }
     }
