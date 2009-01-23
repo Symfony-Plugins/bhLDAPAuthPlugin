@@ -40,7 +40,12 @@ adLDAP:
 
   # will return true with this option turned on, false if turned off
 
-  recursive_groups      : true;
+  # WARNING: If you can set up your groups to live without this
+  # (recursive_groups:false), it may be better.  Recursive lookups can
+  # make the login much slower and in some cases even hang PHP
+  # (especially when encountering very large groups)
+
+  recursive_groups      : false;
 
 
 

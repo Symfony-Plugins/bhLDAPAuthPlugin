@@ -59,7 +59,7 @@ class bhLDAP
   public static function getUserGroups ($username, $recursive=NULL) {
     $ldap = self::getLDAP();
 
-    if ( $recursive == NULL ) { 
+    if ( $recursive === NULL ) { 
       //use the default option if they haven't set it
       $recursive=$ldap->_recursive_groups; 
     } 
@@ -68,21 +68,31 @@ class bhLDAP
     $filter="samaccountname=".$username;
     $fields=array("memberof");
 
+print "A";
+
     $sr=@ldap_search($ldap->_conn,$ldap->_base_dn,$filter,$fields);
     if (! $sr) return array();
+print "B";
 
-    $entries = ldap_get_entries($ldap->_conn, $sr);
+    $entries = @ldap_get_entries($ldap->_conn, $sr);
     if (! (array_key_exists(0, $entries) && array_key_exists('memberof', $entries[0]))) 
       return array();
 
+print "C";
     $groups = $ldap->nice_names($entries[0]['memberof']);
+print "D";
     if ($recursive){
+print "E";
       foreach ($groups as $id => $group_name){
+print "G";
+print "getting extra groups for $group_name\n";
 	$extra_groups=@$ldap->recursive_groups($group_name);
+print "H";
 	$groups=array_merge($groups,$extra_groups);
       }
     }
 
+print "I";
     return $groups;
   }
   
