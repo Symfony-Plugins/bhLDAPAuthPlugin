@@ -23,12 +23,12 @@ adLDAP:
   # intensive.  Setting to false will fudge "Domain Users" and is much
   # faster. Keep in mind though that if someone's primary group is NOT
   # domain users, this is obviously going to bollocks the results
-  real_primarygroup  : true
+  real_primarygroup  : TRUE
 
 
   # Use SSL, but your server needs to be setup.
   #  see http://adldap.sourceforge.net/ldap_ssl.php
-  use_ssl            : false
+  use_ssl            : FALSE
 
 
   # When querying group memberships, do it recursively
@@ -45,7 +45,7 @@ adLDAP:
   # make the login much slower and in some cases even hang PHP
   # (especially when encountering very large groups)
 
-  recursive_groups      : false;
+  recursive_groups      : FALSE;
 
 
 

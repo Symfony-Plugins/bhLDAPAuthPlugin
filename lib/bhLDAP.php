@@ -26,14 +26,8 @@ class bhLDAP
   {
     if (self::$config === null) {  // memoization
       $config = sfYaml::load(sfConfig::get('sf_config_dir').'/LDAPAuth.yml');
+      self::debugDump($config, 'original parsed yaml');
 
-      // remove blank values so adLDAP.php will revert to its defaults.
-      foreach ($config['adLDAP'] as $k => $v) {
-	if ( ! is_array($v)  && ($v == null || preg_match('/^\s*$/',$v))) {
-	  unset($config['adLDAP'][$k]);
-	}
-      }
-      self::debugDump($config, 'parsed, cleaned LDAPAuth yaml');
       self::$config = $config;
     }
     return self::$config;
@@ -59,12 +53,18 @@ class bhLDAP
   public static function getUserGroups ($username, $recursive=NULL) {
     $ldap = self::getLDAP();
 
+
+   self::debugDump($ldap->_recursive_groups, "_recursive_groups setting");
+   self::debugDump($recursive, "passed in \$recursive var");
+
+
     if ( $recursive === NULL ) { 
       //use the default option if they haven't set it
+      self::debug("using recursive option (".$ldap->_recursive_groups.") from config file or default config");
       $recursive=$ldap->_recursive_groups; 
     } 
 
-
+    self::debug("getting group memberships for $username");
     $filter="samaccountname=".$username;
     $fields=array("memberof");
 
@@ -74,9 +74,11 @@ class bhLDAP
     $entries = @ldap_get_entries($ldap->_conn, $sr);
     if (! (array_key_exists(0, $entries) && array_key_exists('memberof', $entries[0]))) 
       return array();
+    self::debugDump($entries, "group entries for $username");
 
     $groups = $ldap->nice_names($entries[0]['memberof']);
     if ($recursive){
+      self::debug("checking recursive group memberships");
       foreach ($groups as $id => $group_name){
 	$extra_groups=@$ldap->recursive_groups($group_name);
 	$groups=array_merge($groups,$extra_groups);
