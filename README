@@ -84,8 +84,10 @@ With MySQL, that would be like this:
 
 * Optionally enable the "Remember Me" filter in `apps/frontend/config/filters.yml` (great for Intranet apps)
 
-    security:
-      class: sfGuardBasicSecurityFilter
+        remember_me:
+          class: sfGuardRememberMeFilter
+
+        security: ~
 
 
 
