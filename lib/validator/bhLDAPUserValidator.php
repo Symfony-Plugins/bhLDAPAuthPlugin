@@ -11,7 +11,7 @@ class bhLDAPUserValidator extends sfGuardValidatorUser
   {
     $username = isset($values[$this->getOption('username_field')]) ? $values[$this->getOption('username_field')] : '';
     $password = isset($values[$this->getOption('password_field')]) ? $values[$this->getOption('password_field')] : '';
-    $remember = isset($values[$this->getOption('rememeber_checkbox')]) ? $values[$this->getOption('rememeber_checkbox')] : '';
+    $remember = isset($values[$this->getOption('remember_checkbox')]) ? $values[$this->getOption('remember_checkbox')] : '';
 
     bhLDAP::debug("########  hello bhLDAPUserValidator::doClean()!");
     $user = sfGuardUserPeer::retrieveByUsername($username);
