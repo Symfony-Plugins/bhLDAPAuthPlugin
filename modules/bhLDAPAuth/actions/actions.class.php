@@ -10,7 +10,7 @@ require_once(sfConfig::get('sf_plugins_dir').'/sfGuardPlugin/modules/sfGuardAuth
  * @package    bhLDAPAuthPlugin
  * @subpackage plugin
  * @author     Nathan Vonnahme
- * @version    SVN: $Id: actions.class.php 455 2008-05-27 23:43:18Z nvonnahm $
+ * @version    SVN: $Id$
  */
 class bhLDAPAuthActions extends BasesfGuardAuthActions
 {

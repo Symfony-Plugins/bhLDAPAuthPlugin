@@ -1,7 +1,7 @@
 <?php
 
-// $Id: bhLDAP.php 502 2008-07-29 23:19:35Z nvonnahm $
-// $URL: https://fai01337.bhs.bannerhealth.com/svn/web/bhLDAPAuthPlugin/lib/bhLDAP.php $
+// $Id$
+// $URL$
 require_once 'adLDAP.php';
 
 

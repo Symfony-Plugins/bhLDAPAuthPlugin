@@ -7,7 +7,7 @@
  *
  * @package bhLDAPAuth symfony plugin
 
- $Id: bhLDAPAuthSecurityUser.class.php 456 2008-05-28 01:20:59Z nvonnahm $
+ $Id$
 
 */ 
 
