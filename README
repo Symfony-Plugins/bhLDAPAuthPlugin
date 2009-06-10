@@ -45,11 +45,11 @@ For production use, you can install the plugins the standard way:
 
 Install the `sfGuardPlugin`
 
-    symfony plugin-install http://plugins.symfony-project.com/sfGuardPlugin
+    ./symfony plugin:install sfGuardPlugin
 
 Install the `bhLDAPAuthPlugin`
 
-    symfony plugin-install http://plugins.symfony-project.com/bhLDAPAuthPlugin
+    ./symfony plugin:install bhLDAPAuthPlugin
 
 ### Or, stay up-to-date with `svn:externals`
 
@@ -197,7 +197,7 @@ You don't want your AD credentials flying around the network in clear text, righ
 
 a. Install the [sfSslRequirementPlugin](http://trac.symfony-project.org/wiki/sfSslRequirementPlugin) into your project's plugin dir (or use the `svn:externals` method, above).  
   
-    symfony plugin-install http://plugins.symfony-project.com/sfSslRequirementPlugin
+    ./symfony plugin:install sfSslRequirementPlugin
 
 b. Complete the installation (editing `filters.yml` and clearing
 cache) according to the plugin's README
