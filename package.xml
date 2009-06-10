@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package packagerversion="1.4.6" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>bhLDAPAuthPlugin</name>
- <channel>pear.symfony-project.com</channel>
+ <channel>plugins.symfony-project.org</channel>
  <summary>LDAP authentication plugin for symfony</summary>
  <description>`bhLDAPAuthPlugin` allows you to use users and groups from an LDAP directory (Only Microsoft Active Directory (R) for now) for your symfony app's authentication and authorization.
 </description>
@@ -11,19 +11,20 @@
   <email>nathan dawt vonnahme at banner health dawt commercial</email>
   <active>yes</active>
  </lead>
- <date>2008-08-05</date>
- <time>10:19:35</time>
+ <date>2009-06-10</date>
+ <time>11:52:35</time>
  <version>
-  <release>0.0.5</release>
-  <api>1.0.0</api>
+  <release>2.0.3</release>
+  <api>1.1.0</api>
  </version>
  <stability>
-  <release>alpha</release>
-  <api>alpha</api>
+  <release>stable</release>
+  <api>stable</api>
  </stability>
  <license uri="http://www.symfony-project.com/license">MIT license</license>
   <notes>
-- initial release
+- hopefully fixed packaging
+- bhLDAPAuth for symfony 1.1
   </notes>
  <contents>
   <dir name="/">
@@ -38,24 +39,30 @@
    <dir name="lib">
     <file role="data" name="bhLDAP.php" />
     <file role="data" name="adLDAP.php" />
+    <file role="data" name="bhLDAPAuthRouting.class.php" />
+
+    <dir name="form">
+     <file role="data" name="bhLDAPAuthFormSignin.class.php" />
+    </dir>
+
+    <dir name="user">
+     <file role="data" name="bhLDAPAuthSecurityUser.class.php" />
+    </dir>
 
     <dir name="validator">
      <!-- validators -->
      <file role="data" name="bhLDAPUserValidator.php" />
     </dir>
-    <dir name="user">
-     <!-- validators -->
-     <file role="data" name="bhLDAPAuthSecurityUser.class.php" />
-    </dir>
+
    </dir>
 
    <dir name="modules">
     <dir name="bhLDAPAuth">
      <file role="data" name="actions/actions.class.php" />
      <file role="data" name="config/security.yml" />
-     <file role="data" name="validate/signin.yml" />
      <file role="data" name="templates/secureSuccess.php" />
      <file role="data" name="templates/signinSuccess.php" />
+     <file role="data" name="validate/signin.yml" />
     </dir>
    </dir>
   </dir>
@@ -63,7 +70,7 @@
  <dependencies>
   <required>
    <php>
-    <min>5.0.0</min>
+    <min>5.1.0</min>
    </php>
    <pearinstaller>
     <min>1.4.1</min>
@@ -71,28 +78,94 @@
    <package>
     <name>symfony</name>
     <channel>pear.symfony-project.com</channel>
-    <min>1.0.0</min>
-    <max>1.1.0</max>
-    <exclude>1.1.0</exclude>
+    <min>1.1.0</min>
+    <max>1.2.0</max>
+    <exclude>1.2.0</exclude>
    </package>
    <package>
     <name>sfGuardPlugin</name>
-    <channel>pear.symfony-project.com</channel>
-    <min>1.1.10</min>
-    <max>2.0.0</max>
-    <exclude>2.0.0</exclude>
+    <channel>plugins.symfony-project.org</channel>
+    <min>2.0.0</min>
+    <max>3.0.0</max>
    </package>
   </required>
   <optional>
    <package>
     <name>sfSslRequirementPlugin</name>
-    <channel>pear.symfony-project.com</channel>
-    <min>1.2.1</min>
-    <max>2.0.0</max>
-    <exclude>2.0.0</exclude>
+    <channel>plugins.symfony-project.org</channel>
+    <min>2.0.0</min>
+    <max>3.0.0</max>
    </package>
   </optional>
  </dependencies>
  <phprelease />
+
+ <changelog>
+   <release>
+     <version>
+       <release>2.0.3</release>
+       <api>1.1.0</api>
+     </version>
+     <stability>
+      <release>stable</release>
+      <api>stable</api>
+     </stability>
+     <license uri="http://www.symfony-project.org/license">MIT license</license>
+     <date>2009-06-10</date>
+     <license>MIT</license>
+     <notes>
+       * Nathan: changed packaging of DEPENDENCIES to also use plugins.symfony-project.org channel
+     </notes>
+   </release>
+   <release>
+     <version>
+       <release>2.0.2</release>
+       <api>1.1.0</api>
+     </version>
+     <stability>
+      <release>stable</release>
+      <api>stable</api>
+     </stability>
+     <license uri="http://www.symfony-project.org/license">MIT license</license>
+     <date>2009-06-10</date>
+     <license>MIT</license>
+     <notes>
+       * Nathan: changed packaging to use plugins.symfony-project.org channel, hopefully works?
+     </notes>
+   </release>
+   <release>
+     <version>
+       <release>2.0.1</release>
+       <api>1.1.0</api>
+     </version>
+     <stability>
+      <release>stable</release>
+      <api>stable</api>
+     </stability>
+     <license uri="http://www.symfony-project.org/license">MIT license</license>
+     <date>2009-06-09</date>
+     <license>MIT</license>
+     <notes>
+       * Nathan: loosen dependency stuff so install will work?
+     </notes>
+   </release>
+   <release>
+     <version>
+       <release>2.0.0</release>
+       <api>1.1.0</api>
+     </version>
+     <stability>
+      <release>stable</release>
+      <api>stable</api>
+     </stability>
+     <license uri="http://www.symfony-project.org/license">MIT license</license>
+     <date>2009-06-09</date>
+     <license>MIT</license>
+     <notes>
+       * Nathan: 2.0 release for symfony 1.1
+     </notes>
+   </release>
+
+ </changelog>
 
 </package>
