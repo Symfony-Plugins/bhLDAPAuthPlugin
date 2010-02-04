@@ -81,8 +81,9 @@ class bhLDAP
       self::debug("checking recursive group memberships");
       foreach ($groups as $id => $group_name){
 	$extra_groups=@$ldap->recursive_groups($group_name);
-	$groups=array_merge($groups,$extra_groups);
+	$groups=array_unique(array_merge($groups,$extra_groups));
       }
+      self::debugDump($groups, "fully recursive list of groups for $username");
     }
 
     return $groups;

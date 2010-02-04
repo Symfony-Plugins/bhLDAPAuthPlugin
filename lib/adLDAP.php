@@ -276,27 +276,37 @@ class adLDAP {
 	}
 	
 	// Retun a complete list of "groups in groups"	
-	function recursive_groups($group){
-		if ($group==NULL){ return (false); }
 
-		$ret_groups=array();
-		
-		$groups=$this->group_info($group,array("memberof"));
+	// this version hacked by ben
+
+	public function recursive_groups($group){
+	  if ($group===NULL){ return (false); }
+
+	  $ret_groups=Array($group);
+	  $new_groups=Array($group);
+
+	  while(count($new_groups)>0) { // The list of groups that need to be checked for membership
+	    $more_groups=Array();
+
+	    foreach ($new_groups as $group_name) {
+	      $groups=@$this->group_info($group_name,array("memberof")); // Get groups this group is a member of
+
+	      if (array_key_exists("memberof", $groups[0])) {
 		$groups=$groups[0]["memberof"];
-
 		if ($groups){
-			$group_names=$this->nice_names($groups);
-			$ret_groups=array_merge($ret_groups,$group_names); //final groups to return
-			
-			foreach ($group_names as $id => $group_name){
-				$child_groups=$this->recursive_groups($group_name);
-				$ret_groups=array_merge($ret_groups,$child_groups);
-			}
+		  $group_names=$this->nice_names($groups);
+		  $more_groups=array_unique(array_merge($more_groups,$group_names)); //final groups to return
 		}
+	      }
 
-		return ($ret_groups);
+	    }
+	    $ret_groups = array_unique(array_merge($ret_groups,$more_groups)); // Add the groups to the main list
+	    $new_groups=array_diff($more_groups,$ret_groups);
+	  }
+	  return ($ret_groups);
 	}
-	
+
+
 	//*****************************************************************************************************************
 	// USER FUNCTIONS
 
@@ -357,7 +367,7 @@ class adLDAP {
 		if ($recursive){
 			foreach ($groups as $id => $group_name){
 				$extra_groups=$this->recursive_groups($group_name);
-				$groups=array_merge($groups,$extra_groups);
+				$groups=array_unique(array_merge($groups,$extra_groups));
 			}
 		}
 		
