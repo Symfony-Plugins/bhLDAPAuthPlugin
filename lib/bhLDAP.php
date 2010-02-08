@@ -80,6 +80,7 @@ class bhLDAP
     if ($recursive){
       self::debug("checking recursive group memberships");
       foreach ($groups as $id => $group_name){
+	self::debug("recursing down into $group_name");
 	$extra_groups=@$ldap->recursive_groups($group_name);
 	$groups=array_unique(array_merge($groups,$extra_groups));
       }

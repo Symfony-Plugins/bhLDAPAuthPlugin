@@ -298,10 +298,10 @@ class adLDAP {
 		  $more_groups=array_unique(array_merge($more_groups,$group_names)); //final groups to return
 		}
 	      }
-
 	    }
-	    $ret_groups = array_unique(array_merge($ret_groups,$more_groups)); // Add the groups to the main list
+
 	    $new_groups=array_diff($more_groups,$ret_groups);
+	    $ret_groups = array_unique(array_merge($ret_groups,$more_groups)); // Add the groups to the main list
 	  }
 	  return ($ret_groups);
 	}
