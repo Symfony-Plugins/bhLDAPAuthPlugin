@@ -99,7 +99,7 @@ class bhLDAP
   public static function getUserCredentials($user)
   {
     $credentials = array();
-    self::debugDump($user, "user");
+    //    self::debugDump($user, "user");
     $username = $user->getUsername();
 
     $ldap = self::getLDAP();

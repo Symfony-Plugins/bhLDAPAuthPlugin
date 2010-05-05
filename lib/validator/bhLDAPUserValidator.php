@@ -1,48 +1,50 @@
 <?php
 
-/* require_once 'lib/bhLDAP.php'; */
-/* require_once 'lib/adLDAP.php'; */
+/* $Id$ */
+/* $URL$ */
 
-class bhLDAPUserValidator extends sfGuardValidatorUser
+class bhLDAPUserValidator extends sfValidatorBase
 {
+  public function configure($options = array(), $messages = array())
+  {
+    $this->addOption('username_field', 'username');
+    $this->addOption('password_field', 'password');
+    $this->addOption('throw_global_error', false);
 
+    $this->setMessage('invalid', 'The username and/or password is invalid.');
+  }
 
   protected function doClean($values)
   {
     $username = isset($values[$this->getOption('username_field')]) ? $values[$this->getOption('username_field')] : '';
+    bhLDAP::debug ('######## Username: ' . $username);
     $password = isset($values[$this->getOption('password_field')]) ? $values[$this->getOption('password_field')] : '';
-    $remember = isset($values[$this->getOption('remember_checkbox')]) ? $values[$this->getOption('remember_checkbox')] : '';
 
-    bhLDAP::debug("########  hello bhLDAPUserValidator::doClean()!");
-    $user = sfGuardUserPeer::retrieveByUsername($username);
+    bhLDAP::debug ('######## User exists?');
 
-    if (! $user) { // pretend the user exists, then check AD password
+    $user = Doctrine::getTable('sfGuardUser')->findOneByUsername($username);
+    
+    bhLDAP::debugDump($user, "user:");
+
+    if (! $user) 
+    { 
+      // pretend the user exists, then check AD password
+      bhLDAP::debug ('######## User does not exist. Creating dummy user.');
       $user = new sfGuardUser;
       $user->setUsername($username);
       $user->setSalt('unused');
       $user->setPassword('unused');
     }
 
-    bhLDAP::debug("########  checking AD password...");
-
-    // user exists?
-    if ($user)
+    // password is ok?
+    bhLDAP::debug ('######## Checking Password...');
+    if ($user->checkPassword($password))
     {
-      // password is ok?
-      if ($user->checkPassword($password))
-      {
-	bhLDAP::debug("########  Good password!");
-
-	if ($user->isNew()) {
-	  $user->save();
-	  $user = sfGuardUserPeer::retrieveByUsername($username);
-	}
-        return array_merge($values, array('user' => $user));
-      }
-      else {
-	bhLDAP::debug("########  Password FAIL!");
-	$user->delete();
-      }
+      bhLDAP::debug ('######## Check Password successful...');
+      return array_merge($values, array('user' => $user));
+    } else
+    {
+      bhLDAP::debug ('######## Check Password failed...');
     }
 
     if ($this->getOption('throw_global_error'))
@@ -54,5 +56,10 @@ class bhLDAPUserValidator extends sfGuardValidatorUser
   }
 
 
+  protected function getTable()
+  {
+    return Doctrine::getTable('sfGuardUser');
+  }
 }
+
 //sfeof

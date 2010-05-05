@@ -1,4 +1,4 @@
-<?php use_helper('Validation', 'I18N', 'Form') ?>
+<?php use_helper('I18N') ?>
 <?php $LDAP_config = bhLDAP::getConfig(); ?>
 <div id="sf_admin_container">
 
@@ -15,7 +15,7 @@
       <td>
 <?php echo $form['username']->renderError()  ?>
 <?php echo $form['username']->render() ?>
-<?php echo $LDAP_config['adLDAP']['account_suffix'] ;  ?></td>
+	      <?php echo $LDAP_config['adLDAP']['account_suffix'] ;  ?></td>
 	      </tr>
     <?php echo $form['password']->renderRow() ?>
     <?php echo $form['remember']->renderRow() ?>
@@ -27,7 +27,7 @@
 
       <ul class="sf_admin_actions">
 	<li class="float-right">
-	  <?php echo submit_tag('Log In', 'class="sf_admin_action_save"'); ?>
+	  <input type="submit" value="<?php echo __('Log In') ?>" class="sf_admin_action_save" />
 	</li>
       </ul>
 

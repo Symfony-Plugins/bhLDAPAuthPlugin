@@ -3,9 +3,10 @@
 # bhLDAPAuthPlugin #
 
 `bhLDAPAuthPlugin` allows you to use users and groups from an LDAP
-directory (Only Microsoft Active Directory&reg; for now but you're
-welcome to add others) for your symfony app's authentication and
-authorization.
+directory (Microsoft Active Directory&reg; and possibly others) for
+your symfony app's authentication and authorization.
+
+This version supports Symfony 1.4 with Doctrine.
 
 ## Revision ##
 
@@ -17,22 +18,22 @@ $HeadURL$
 
 `bhLDAPAuthPlugin` does:
 
-   * give your app a web login form similar to sfGuard's
-   * let you allow parts of your app to users based on their membership in AD groups
+   * give your app a web login form similar to sfGuard's, with LDAP password authentication
+   * let you authorize parts of your app to users based on their membership in LDAP groups
    * work with Apache on Windows ([XAMPP](http://www.apachefriends.org) rocks; you will need the Devel package) or Linux (probably also other Unix family OSes including Mac OS X).
+   * work with Microsoft Active Directory&reg; and possibly other LDAP servers.
 
 It does *NOT*: 
 
-   * provide single sign on/seamless authentication/NTLM/GSSAPI.  For that, you can try [some of these alternatives](http://adldap.sourceforge.net/wiki/doku.php?id=seamless_authentication).  I would start by trying (again) to get symfony to run on IIS (Windows).
-   * currently work with LDAP servers other than Microsoft Active Directory&reg;
-   * necessarily keep your app from transmitting AD passwords over the network in plain text (use HTTPS for the login!)
+   * provide single sign on/seamless authentication/NTLM/GSSAPI.  For that, you can try [some of these alternatives](http://adldap.sourceforge.net/wiki/doku.php?id=seamless_authentication).  I would try to [run symfony on IIS](http://www.symfony-project.org/more-with-symfony/1_4/en/11-Windows-and-Symfony), or try [Likewise](http://www.likewise.com/).
+   * necessarily keep your app from transmitting AD passwords over the network in plain text (use HTTPS for the login; instructions below!)
    * suck as much as having Yet Another user/group database to maintain
 
 ## Requirements ##
 
-  * [`sfGuardPlugin`](http://www.symfony-project.com/plugins/sfGuardPlugin).  Why reinvent the wheel?
+  * [sfDoctrineGuardPlugin](http://www.symfony-project.org/plugins/sfDoctrineGuardPlugin).  Why reinvent the wheel?
   * Your PHP must have OpenLDAP support enabled
-  * Microsoft Active Directory&reg;
+  * Microsoft Active Directory&reg; (again, it might work with other LDAP servers)
   * `sfSslRequirementPlugin` is a good idea but not strictly required (see "enable SSL" below).
 
 ## Installation ##
@@ -43,9 +44,9 @@ It does *NOT*:
 
 For production use, you can install the plugins the standard way:
 
-Install the `sfGuardPlugin`
+Install the `sfDoctrineGuardPlugin`
 
-    ./symfony plugin:install sfGuardPlugin
+    ./symfony plugin:install sfDoctrineGuardPlugin
 
 Install the `bhLDAPAuthPlugin`
 
@@ -61,11 +62,12 @@ command to edit the `svn:externals` property on your plugin directory
     svn propedit svn:externals ./plugins
 
 And here are the correct URLs for downloading the latest from each
-plugin's symfony 1.1 branch:
+plugin's symfony 1.4 (or compatible) branch:
 
-    bhLDAPAuthPlugin/     http://svn.symfony-project.com/plugins/bhLDAPAuthPlugin/branches/1.1/
-    sfGuardPlugin/        http://svn.symfony-project.com/plugins/sfGuardPlugin/branches/1.1/
-    sfSslRequirementPlugin/ http://svn.symfony-project.com/plugins/sfSslRequirementPlugin/branches/1.1/
+    $ svn propget svn:externals plugins/
+    bhLDAPAuthPlugin/         http://svn.symfony-project.com/plugins/bhLDAPAuthPlugin/branches/1.4/
+    sfDoctrineGuardPlugin/    http://svn.symfony-project.com/plugins/sfDoctrineGuardPlugin/branches/1.3/
+    sfSslRequirementPlugin/ http://svn.symfony-project.com/plugins/sfSslRequirementPlugin/branches/1.2/
 
 
 ## Configuration
@@ -89,73 +91,95 @@ domain_controllers:
   - 10.41.16.3
 </pre>
 
-### 2. Rebuild your model.  
 
-This adds the Propel object models for tables that `sfGuardPlugin`
+### 2. Activate the plugins
+
+Turn on the plugins in `config/ProjectConfiguration.class.php`
+  
+        [php]
+        class ProjectConfiguration extends sfProjectConfiguration
+        {
+          public function setup()
+          {
+            $this-&gt;enablePlugins(array(
+              'sfDoctrinePlugin', 
+              'sfDoctrineGuardPlugin',
+              'sfSslRequirementPlugin',
+	      'bhLDAPAuthPlugin',
+              '...'
+            ));
+          }
+        }
+
+
+### 3. Rebuild your model.  
+
+This adds the Propel object models for tables that `sfDoctrineGuardPlugin`
 needs to your database, even though we won't be using most of them.
 
-    symfony propel-build-model
-    symfony propel-build-sql
+    ./symfony  doctrine:build --model --sql
 
 Update you database tables by starting from scratch (it will delete all
 the existing tables, then re-create them):
   
-    symfony propel-insert-sql
+    ./symfony doctrine:insert-sql
 
-*or*, you can just create the new tables by using the generated SQL
-statements in `data/sql/plugins.sfGuardAuth.lib.model.schema.sql`
+*or*, you can create the new tables manually using the generated SQL
+statements that have been appended to `data/sql/schema.sql`.
 
-With MySQL, that would be like this:
+(Don't load the default sfDoctrineGuardPlugin fixtures)
 
-    mysql -uroot -ppassword database < data/sql/plugins.sfGuardPlugin.lib.model.schema.sql
-
-
-(Don't load the default sfGuardPlugin fixtures)
-
-### 3.  Clear your cache
+### 4.  Clear your cache
 
     symfony cc
 
 
-### 4. Enable "Remember Me" (optional)
+### 5. Enable "Remember Me" (optional)
 
-Optionally enable the "Remember Me" filter in
-`apps/frontend/config/filters.yml` (great for Intranet apps)
+Optionally enable the "Remember Me" filter above the security filter in `apps/frontend/config/filters.yml` 
 
-    security:
-      class: sfGuardBasicSecurityFilter
+    remember_me:
+      class: sfGuardRememberMeFilter
+
+    security: ~
 
 
-
-### 5. Edit your application's config files
+### 6. Edit your application's config files 
 
 #### a. settings.yml
 
-Enable the module `sfGuardAuth` under `.settings` in
+Enable the `sfGuardAuth` and `bhLDAPAuth` modules under `.settings` in
 `apps/frontend/config/settings.yml`
 
     all:
       .settings:
-        enabled_modules: [..., sfGuardAuth, bhLDAPAuth]
+        enabled_modules: [default, ..., sfGuardAuth, bhLDAPAuth]
 
-Change the default login and secure modules under `.actions` in
+***NOTE:*** at this time, it's also necessary to turn off CSRF protection here.  I think it is because we mix the bhLDAPAuth module's forms with the forms from sfGuardAuth.  Any help or patches are appreciated!
+
+        csrf_secret:            false
+
+
+Change the default login and secure modules under `all:``.actions` in
 `apps/frontend/config/settings.yml`
 
-    login_module:           bhLDAPAuth
-    login_action:           signin
+    all:
+      .actions:
+	login_module:           bhLDAPAuth
+	login_action:           signin
 
-    secure_module:          sfGuardAuth
-    secure_action:          secure
+	secure_module:          sfGuardAuth
+	secure_action:          secure
 
 #### b. app.yml
 
-Tell `sfGuard` to use the password checker in `bhLDAPAuth` in
-`apps/frontend/config/app.yml`.
+Tell `sfDoctrineGuard` to use the password checker in `bhLDAPAuth` in
+`apps/frontend/config/app.yml`, and set `routes:register` false so the bhLDAP routes will override.
   
     all:
       sf_guard_plugin:
 	check_password_callable:   [bhLDAP, checkPassword]
-
+	routes_register: false
 
 #### c. `myUser` class
 
@@ -168,7 +192,7 @@ Change the parent class to bhLDAPAuthSecurityUser in
     }
 
 
-### 6. Apply security to some modules or the whole app
+### 7. Apply security to some modules or the whole app
  
 Secure some modules or your entire application in
 `apps/frontend/config/security.yml`.  Read more about security in
@@ -177,6 +201,20 @@ book](http://www.symfony-project.org/book/1_2/06-Inside-the-Controller-Layer#cha
 
 To require users to log in to access *any* module of the application,
 
+    # don't secure login or error pages or you'll make a loop.
+    login:
+      is_secure: off
+      require_ssl: true
+
+    error404:
+      is_secure: off
+      require_ssl: false
+
+    disabled:
+      is_secure: off
+      require_ssl: false
+
+    # require authnz for everything else
     default:
       is_secure: on
 
@@ -191,16 +229,16 @@ At this point your application (or certain modules) is restricted to
 users who can supply valid AD credentials.
 
 
-#### 7. enable SSL protection of login form
+#### 8. enable SSL protection of login form
 
 You don't want your AD credentials flying around the network in clear text, right?  
 
-a. Install the [sfSslRequirementPlugin](http://trac.symfony-project.org/wiki/sfSslRequirementPlugin) into your project's plugin dir (or use the `svn:externals` method, above).  
+a. Install the [sfSslRequirementPlugin](http://www.symfony-project.org/plugins/sfSslRequirementPlugin) into your project's plugin dir (or use the `svn:externals` method, above).  
   
     ./symfony plugin:install sfSslRequirementPlugin
 
 b. Complete the installation (editing `filters.yml` and clearing
-cache) according to the plugin's README
+cache) according to [sfSslRequirementPlugin's README](http://www.symfony-project.org/plugins/sfSslRequirementPlugin/2_0_0?tab=plugin_readme)
 
 c. The bhLDAPAuthPlugin `security.yml` file already turns SSL on for
 the signin and login action.
@@ -279,7 +317,7 @@ For comments, edit `apps/myapp/modules/comment/config/security.yml`:
 
 This is all on the shoulders of giants.  Besides
 [symfony](http://symfony-project.com) and
-[sfGuardPlugin](http://www.symfony-project.com/plugins/sfGuardPlugin),
+[sfDoctrineGuardPlugin](http://www.symfony-project.com/plugins/sfDoctrineGuardPlugin),
 it includes code from 
 [the `adLDAP` PHP library](http://adldap.sourceforge.net/).
 
@@ -291,11 +329,15 @@ it includes code from
 
 ## TODO ##
 
-* make it also work with non-AD LDAP servers
+* test and document non-AD LDAP servers
 
 ## Changelog ##
 
-### 1.0
+### 5.0
+
+* nathan: release for symfony 1.4 with Doctrine.
+
+### 1.0 - 4.0
 
 * nathan: out of "alpha", releases for symfony 1.0, 1.1, 1.2 and 1.2 with Doctrine.
 

@@ -1,8 +1,9 @@
 <?php
 
+/*  $URL$ */
 
-require_once(sfConfig::get('sf_plugins_dir').'/sfGuardPlugin/modules/sfGuardAuth/lib/BasesfGuardAuthActions.class.php');
-
+  // Doctrine-specifics here
+require_once(sfConfig::get('sf_plugins_dir').'/sfDoctrineGuardPlugin/modules/sfGuardAuth/lib/BasesfGuardAuthActions.class.php');
 
 
 /**
@@ -32,7 +33,7 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
     $class = sfConfig::get('app_sf_guard_plugin_signin_form', 'bhLDAPAuthFormSignin');
     $this->form = new $class();
 
-    bhLDAP::debug("########  Request Method = " . $request->getMethodName());
+    bhLDAP::debug("########  Request Method = " . $request->getMethod());
 
 
     if ($request->isMethod('post'))
@@ -40,11 +41,12 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
       bhLDAP::debug("########  a login attempt!  signing in (if validation passed) and redirectifying to homepage or wherever");
 
 
-
-
       $this->form->bind($request->getParameter('signin'));
+      bhLDAP::debug("### form bound");
+
       if ($this->form->isValid())
       {
+	bhLDAP::debug("##### signin form is valid");
         $values = $this->form->getValues();
         $this->getUser()->signIn($values['user'], array_key_exists('remember', $values) ? $values['remember'] : false);
 
@@ -55,6 +57,9 @@ class bhLDAPAuthActions extends BasesfGuardAuthActions
 
         return $this->redirect($signinUrl);
       }
+      else {
+	bhLDAP::debug("##### what??  signin form is NOT valid");
+      }	
     
     }
     else

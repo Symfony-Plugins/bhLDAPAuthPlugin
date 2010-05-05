@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package packagerversion="1.4.6" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>bhLDAPAuthPlugin</name>
- <channel>plugins.symfony-project.org</channel>
+ <channel>pear.symfony-project.com</channel>
  <summary>LDAP authentication plugin for symfony</summary>
- <description>`bhLDAPAuthPlugin` allows you to use users and groups from an LDAP directory (Only Microsoft Active Directory (R) for now) for your symfony app's authentication and authorization.
+ <description>`bhLDAPAuthPlugin` allows you to use users and groups from an LDAP directory (such as Microsoft Active Directory (R)) for your symfony app's authentication and authorization.
 </description>
  <lead>
   <name>Nathan Vonnahme</name>
@@ -11,11 +11,11 @@
   <email>nathan dawt vonnahme at banner health dawt commercial</email>
   <active>yes</active>
  </lead>
- <date>2009-06-10</date>
- <time>11:52:35</time>
+ <date>2010-05-05</date>
+ <time>16:59:35</time>
  <version>
-  <release>2.0.3</release>
-  <api>1.1.0</api>
+  <release>5.0.0</release>
+  <api>1.4.0Doctrine</api>
  </version>
  <stability>
   <release>stable</release>
@@ -23,8 +23,7 @@
  </stability>
  <license uri="http://www.symfony-project.com/license">MIT license</license>
   <notes>
-- hopefully fixed packaging
-- bhLDAPAuth for symfony 1.1
+- bhLDAPAuth 5.0 release for symfony 1.4 with Doctrine
   </notes>
  <contents>
   <dir name="/">
@@ -70,7 +69,7 @@
  <dependencies>
   <required>
    <php>
-    <min>5.1.0</min>
+    <min>5.0.0</min>
    </php>
    <pearinstaller>
     <min>1.4.1</min>
@@ -78,23 +77,21 @@
    <package>
     <name>symfony</name>
     <channel>pear.symfony-project.com</channel>
-    <min>1.1.0</min>
-    <max>1.2.0</max>
-    <exclude>1.2.0</exclude>
+    <min>1.3.0</min>
+    <max>1.4.9</max>
+<!--     <exclude>1.3.0</exclude> -->
    </package>
    <package>
-    <name>sfGuardPlugin</name>
-    <channel>plugins.symfony-project.org</channel>
-    <min>2.0.0</min>
-    <max>3.0.0</max>
+    <name>sfDoctrineGuardPlugin</name>
+    <channel>pear.symfony-project.com</channel>
+<!--     <min>3.0.0</min> -->
    </package>
   </required>
   <optional>
    <package>
     <name>sfSslRequirementPlugin</name>
-    <channel>plugins.symfony-project.org</channel>
-    <min>2.0.0</min>
-    <max>3.0.0</max>
+    <channel>pear.symfony-project.com</channel>
+<!--     <min>2.0.0</min> -->
    </package>
   </optional>
  </dependencies>
@@ -103,34 +100,50 @@
  <changelog>
    <release>
      <version>
-       <release>2.0.3</release>
-       <api>1.1.0</api>
+       <release>5.0.0</release>
+       <api>1.4.0Doctrine</api>
      </version>
      <stability>
       <release>stable</release>
       <api>stable</api>
      </stability>
      <license uri="http://www.symfony-project.org/license">MIT license</license>
-     <date>2009-06-10</date>
+     <date>2010-05-05</date>
      <license>MIT</license>
      <notes>
-       * Nathan: changed packaging of DEPENDENCIES to also use plugins.symfony-project.org channel
+       * Nathan: Release for symfony 1.4 with Doctrine
      </notes>
    </release>
    <release>
      <version>
-       <release>2.0.2</release>
-       <api>1.1.0</api>
+       <release>4.0.0</release>
+       <api>1.2.0Doctrine</api>
      </version>
      <stability>
       <release>stable</release>
       <api>stable</api>
      </stability>
      <license uri="http://www.symfony-project.org/license">MIT license</license>
-     <date>2009-06-10</date>
+     <date>2009-06-09</date>
      <license>MIT</license>
      <notes>
-       * Nathan: changed packaging to use plugins.symfony-project.org channel, hopefully works?
+       * Nathan: Release for symfony 1.2 with Doctrine
+     </notes>
+   </release>
+   <release>
+     <version>
+       <release>3.0.0</release>
+       <api>1.2.0</api>
+     </version>
+     <stability>
+      <release>stable</release>
+      <api>stable</api>
+     </stability>
+     <license uri="http://www.symfony-project.org/license">MIT license</license>
+     <date>2009-06-09</date>
+     <license>MIT</license>
+     <notes>
+       * Nathan: Release for symfony 1.2 with Propel
      </notes>
    </release>
    <release>
