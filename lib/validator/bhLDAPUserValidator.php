@@ -38,12 +38,15 @@ class bhLDAPUserValidator extends sfValidatorBase
 
     // password is ok?
     bhLDAP::debug ('######## Checking Password...');
-    if ($user->checkPassword($password))
-    {
+    if ($user->checkPassword($password))      {
       bhLDAP::debug ('######## Check Password successful...');
+      if ($user->isNew()) {
+	$user->save();
+	$user = Doctrine::getTable('sfGuardUser')->retrieveByUsername($username);
+      }
       return array_merge($values, array('user' => $user));
-    } else
-    {
+    } 
+    else {
       bhLDAP::debug ('######## Check Password failed...');
     }
 

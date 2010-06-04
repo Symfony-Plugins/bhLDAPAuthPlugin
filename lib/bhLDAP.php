@@ -150,16 +150,37 @@ class bhLDAP
   }
 
   /**
-   * Dump a data structure to the log at the 'debug' level.  Uses
-   * print_r() formatting.
+   * Dump a data structure to the log at the 'debug' level.
+   * Recursively dumps $levels_to_recurse nested levels of arrays.
+   * Dumps only the first level of objects.
    * 
    * @param      mixed $v         The variable/data structure to dump
    * @param      string $label    An optional label to print in front of the dump
+   * @param      int $levels_to_recurse       Maximum levels to recurse.  Default = 3.
    * @return     nothing
    */ 
-  public static function debugDump ($v, $label = "var dump") {
-    self::debug("$label:  " . print_r($v, true));
+  public static function debugDump ($v, $label = "var dump", $levels_to_recurse = 3) {
+    // 2010-05-20 - disabled print_r because it causes horrible problems with symfony objects under sf1.4/php5.3 .
+
+    self::debug("$label: dumping variable of type '" . gettype($v) . "'" . 
+		(is_object($v)?" (".get_class($v).")":"") );
+
+    if (is_array($v) || is_object($v)) {
+       foreach ($v as $key => $value) {
+	 if (is_array($value) && $levels_to_recurse > 0) {
+	   self::debugDump($value, "$label>$key", $levels_to_recurse - 1);
+	 }
+	 else {
+	   self::debug("$label:    $key => $value\n");
+	 }
+       }
+    }
+    else {
+      self::debug("$label:  variable => $v");
+    }
+
   }
+
 
 
 }
