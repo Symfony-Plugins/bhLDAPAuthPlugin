@@ -5,6 +5,10 @@
 <div id="sf_guard_auth_form">
 <?php echo form_tag('@bh_ldap_signin') ?>
 
+<?php if ($form->isCSRFProtected()): ?>
+<?php echo $form[ $form->getCSRFFieldName() ]->render()  ?>
+<?php endif;  ?>
+
     <h1>Log In</h1>
 
   <fieldset>
