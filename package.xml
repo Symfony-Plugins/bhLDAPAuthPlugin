@@ -11,10 +11,10 @@
   <email>nathan dawt vonnahme at banner health dawt commercial</email>
   <active>yes</active>
  </lead>
- <date>2010-05-05</date>
- <time>16:59:35</time>
+ <date>2011-07-13</date>
+ <time>16:42:35</time>
  <version>
-  <release>5.0.0</release>
+  <release>5.0.2</release>
   <api>1.4.0Doctrine</api>
  </version>
  <stability>
@@ -23,7 +23,7 @@
  </stability>
  <license uri="http://www.symfony-project.com/license">MIT license</license>
   <notes>
-- bhLDAPAuth 5.0 release for symfony 1.4 with Doctrine
+- bugfix bhLDAPAuth 5.0 release for symfony 1.4 with Doctrine
   </notes>
  <contents>
   <dir name="/">
@@ -98,6 +98,39 @@
  <phprelease />
 
  <changelog>
+   <release>
+     <version>
+       <release>5.0.2</release>
+       <api>1.4.0Doctrine</api>
+     </version>
+     <stability>
+      <release>stable</release>
+      <api>stable</api>
+     </stability>
+     <license uri="http://www.symfony-project.org/license">MIT license</license>
+     <date>2011-07-13</date>
+     <license>MIT</license>
+     <notes>
+       * Nathan: CSRF fix from Gabriele Franzini
+     </notes>
+   </release>
+   <release>
+     <version>
+       <release>5.0.1</release>
+       <api>1.4.0Doctrine</api>
+     </version>
+     <stability>
+      <release>stable</release>
+      <api>stable</api>
+     </stability>
+     <license uri="http://www.symfony-project.org/license">MIT license</license>
+     <date>2010-06-03</date>
+     <license>MIT</license>
+     <notes>
+       * Nathan: rewrote debugDump which was causing trouble (PHP crashes) in some cases
+       * Nathan: fixed bug preventing the first login for each user
+     </notes>
+   </release>
    <release>
      <version>
        <release>5.0.0</release>

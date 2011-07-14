@@ -1,10 +1,10 @@
 secure:
-  is_secure: off
+  is_secure: false
 
 signin:
-  is_secure: off
+  is_secure: false
   require_ssl: true
 
 signout:
-  is_secure: off
+  is_secure: false
   require_ssl: true
