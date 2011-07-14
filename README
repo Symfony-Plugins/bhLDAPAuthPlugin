@@ -155,11 +155,6 @@ Enable the `sfGuardAuth` and `bhLDAPAuth` modules under `.settings` in
       .settings:
         enabled_modules: [default, ..., sfGuardAuth, bhLDAPAuth]
 
-***NOTE:*** at this time, it's also necessary to turn off CSRF protection here.  I think it is because we mix the bhLDAPAuth module's forms with the forms from sfGuardAuth.  Any help or patches are appreciated!
-
-        csrf_secret:            false
-
-
 Change the default login and secure modules under `all:``.actions` in
 `apps/frontend/config/settings.yml`
 
@@ -332,6 +327,19 @@ it includes code from
 * test and document non-AD LDAP servers
 
 ## Changelog ##
+
+### 6.0
+* nathan: release for symfony 1.4 with Propel 1.6 (sfPropel15Plugin)
+* CSRF fix from Gabriele Franzini
+
+### 5.1
+* CSRF fix from Gabriele Franzini
+
+### 5.0.1
+
+* Nathan: rewrote debugDump which was causing trouble (PHP crashes) in some cases
+* Nathan: fixed bug preventing the first login for each user
+
 
 ### 5.0
 
